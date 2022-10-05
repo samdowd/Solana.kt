@@ -168,8 +168,13 @@ class Transaction {
         return true
     }
 
-    internal fun compile(): Message {
+    internal fun compile(config: SerializeConfig = SerializeConfig()): Message {
         val message = compileMessage()
+
+        if (!config.verifySignatures && !config.requireAllSignatures) {
+            return message
+        }
+
         val signedKeys = message.accountKeys.slice(
             0 until message.header.numRequiredSignatures
         )
@@ -344,15 +349,15 @@ class Transaction {
     /**
      * Get a buffer of the Transaction data that need to be covered by signatures
      */
-    fun serializeMessage(): ByteArray {
-        return compile().serialize()
+    fun serializeMessage(config: SerializeConfig = SerializeConfig()): ByteArray {
+        return compile(config).serialize()
     }
 
     /**
      * Serialize the Transaction in the wire format.
      */
     fun serialize(config: SerializeConfig = SerializeConfig()): ByteArray {
-        val signData = this.serializeMessage()
+        val signData = this.serializeMessage(config)
         if (config.verifySignatures &&
             !this.verifySignatures(signData, config.requireAllSignatures)
         ) {
