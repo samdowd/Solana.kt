@@ -100,7 +100,7 @@ class Transaction {
         verifySignatures(message.serialize(), true)
     }
 
-    fun partialSign(vararg signers: Account) {
+    fun partialSign(vararg signers: Account, config: SerializeConfig = SerializeConfig()) {
         require(signers.isNotEmpty()) { "No signers" }
 
         // Dedupe signers
@@ -116,7 +116,7 @@ class Transaction {
             }
         }
 
-        val message = compile()
+        val message = compile(config)
         partialSign(message, uniqueSigners)
     }
 
